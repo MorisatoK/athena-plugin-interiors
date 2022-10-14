@@ -6,30 +6,20 @@ import './cmds';
 
 import { Interior } from '../../shared/interfaces';
 import Database from '@stuyk/ezmongodb';
-import { sha256Random } from '../../../../server/utility/encryption';
 import { InteriorInternal } from './interfaces';
-import { ServerMarkerController } from '../../../../server/streamers/marker';
-import { InteractionController } from '../../../../server/systems/interaction';
-import { distance } from '../../../../shared/utility/vector';
-import { isFlagEnabled } from '../../../../shared/utility/flags';
+import { distance } from '@AthenaShared/utility/vector';
+import { isFlagEnabled } from '@AthenaShared/utility/flags';
 import { INTERIOR_SYSTEM } from '../../shared/flags';
-import SystemRules from '../../../../server/systems/rules';
-import { IResponse } from '../../../../shared/interfaces/iResponse';
-import { SYSTEM_EVENTS } from '../../../../shared/enums/system';
-import { ServerObjectController } from '../../../../server/streamers/object';
-import { ServerTextLabelController } from '../../../../server/streamers/textlabel';
-import { deepCloneObject } from '../../../../shared/utility/deepCopy';
-import { CurrencyTypes } from '../../../../shared/enums/currency';
-import { Character } from '../../../../shared/interfaces/character';
-import { Collections } from '../../../../server/interface/iDatabaseCollections';
-import { StorageView } from '../../../../server/views/storage';
-import { StorageSystem } from '../../../../server/systems/storage';
+import SystemRules from '@AthenaServer/systems/rules';
+import { IResponse } from '@AthenaShared/interfaces/iResponse';
+import { SYSTEM_EVENTS } from '@AthenaShared/enums/system';
+import { CurrencyTypes } from '@AthenaShared/enums/currency';
+import { Character } from '@AthenaShared/interfaces/character';
 import { INTERIOR_COLLECTIONS, INTERIOR_INTERACTIONS, INTERIOR_RULES } from '../../shared/enums';
-import { IObject } from '../../../../shared/interfaces/iObject';
-import { ATHENA_EVENTS_PLAYER } from '../../../../shared/enums/athenaEvents';
+import { IObject } from '@AthenaShared/interfaces/iObject';
+import { ATHENA_EVENTS_PLAYER } from '@AthenaShared/enums/athenaEvents';
 import { LOCALE_INTERIOR_VIEW } from '../../shared/locales';
-import { PlayerEvents } from '../../../../server/events/playerEvents';
-import { Athena } from '../../../../server/api/athena';
+import { Athena } from '@AthenaServer/api/athena';
 
 /**
  * Interiors should work in the following way.
@@ -75,7 +65,7 @@ class InternalSystem {
         interiorInfo._id = interiorInfo._id.toString();
 
         if (!interior.removeOutsideColshape) {
-            ServerMarkerController.append({
+            Athena.controllers.marker.append({
                 uid: `${interior.uid}-outside`,
                 maxDistance: 15,
                 color: new alt.RGBA(255, 255, 0, 75),
@@ -84,7 +74,7 @@ class InternalSystem {
                 type: 0,
             });
 
-            const outsideUid = InteractionController.add({
+            const outsideUid = Athena.controllers.interaction.add({
                 description: LOCALE_INTERIOR_VIEW.LABEL_OPEN_INTERIOR_MENU,
                 position: interior.outside,
                 uid: `${interior.uid}-outside`,
@@ -94,7 +84,7 @@ class InternalSystem {
                 isPlayerOnly: true,
             });
 
-            interiorInfo.outsideShape = InteractionController.get(outsideUid);
+            interiorInfo.outsideShape = Athena.controllers.interaction.get(outsideUid);
         }
 
         InternalSystem.refreshInteriorText(interiorInfo);
@@ -179,7 +169,7 @@ class InternalSystem {
 
         const objects = interior.objects;
         for (let i = 0; i < objects.length; i++) {
-            ServerObjectController.removeFromPlayer(player, objects[i].uid, true);
+            Athena.controllers.object.removeFromPlayer(player, objects[i].uid, true);
         }
 
         // Reset Objects and Re-Add Them
@@ -189,7 +179,7 @@ class InternalSystem {
 
         for (let i = 0; i < objects.length; i++) {
             objects[i].isInterior = true;
-            ServerObjectController.addToPlayer(player, objects[i]);
+            Athena.controllers.object.addToPlayer(player, objects[i]);
         }
     }
 
@@ -223,12 +213,12 @@ class InternalSystem {
             z: interior.outside.z + 0.75,
         };
 
-        ServerTextLabelController.remove(`${interior.uid}-outside`);
+        Athena.controllers.text.remove(`${interior.uid}-outside`);
         if (interior.removeTextLabel) {
             return;
         }
 
-        ServerTextLabelController.append({
+        Athena.controllers.text.append({
             uid: `${interior.uid}-outside`,
             pos: aboveGroundOutside,
             data: outsideName,
@@ -271,7 +261,7 @@ class InternalSystem {
         interior.isUnlocked = !interior.isUnlocked;
 
         if (!interior.isUnlocked && interior.storage) {
-            StorageView.forceCloseStorage(interior.storage);
+            Athena.views.storage.forceCloseStorage(interior.storage);
         }
 
         InternalSystem.refreshInteriorText(interior);
@@ -440,7 +430,7 @@ class InternalSystem {
 
         // Remove array. Make it a string reference to the storage box.
         if (!interior.storage || Array.isArray(interior.storage)) {
-            const storage = await StorageSystem.create({ cash: 0, items: [], maxSize: 28 });
+            const storage = await Athena.systems.storage.create({ cash: 0, items: [], maxSize: 28 });
             storageID = storage._id.toString();
             interior.storage = storageID;
             await Database.updatePartialData(interior._id, { storage: storageID }, INTERIOR_COLLECTIONS.CORE);
@@ -448,7 +438,7 @@ class InternalSystem {
             storageID = interior.storage;
         }
 
-        StorageView.open(player, storageID, `Interior - ${interior.uid} - Storage`);
+        Athena.views.storage.open(player, storageID, `Interior - ${interior.uid} - Storage`);
     }
 
     /**
@@ -513,9 +503,17 @@ class InternalSystem {
                 Athena.player.emit.sound2D(target, 'item_purchase');
                 Athena.player.emit.notification(player, LOCALE_INTERIOR_VIEW.LABEL_DID_SELL_INTERIOR);
             } else {
-                const targetData = await Database.fetchData<Character>(`_id`, originalOwner, Collections.Characters);
+                const targetData = await Database.fetchData<Character>(
+                    `_id`,
+                    originalOwner,
+                    Athena.database.collections.Characters,
+                );
                 targetData.bank += originalPrice;
-                await Database.updatePartialData(originalOwner, { bank: targetData.bank }, Collections.Characters);
+                await Database.updatePartialData(
+                    originalOwner,
+                    { bank: targetData.bank },
+                    Athena.database.collections.Characters,
+                );
             }
         }
 
@@ -589,7 +587,7 @@ export class InteriorSystem {
         await InternalSystem.hasInitialized();
 
         if (!interior.uid) {
-            interior.uid = sha256Random(JSON.stringify(interior));
+            interior.uid = Athena.utility.hash.sha256Random(JSON.stringify(interior));
         }
 
         if (interiors.has(interior.uid)) {
@@ -648,8 +646,8 @@ export class InteriorSystem {
 
         // Delete colshapes, objects, etc.
         try {
-            ServerMarkerController.remove(`${interior.uid}-outside`);
-            ServerMarkerController.remove(`${interior.uid}-inside`);
+            Athena.controllers.marker.remove(`${interior.uid}-outside`);
+            Athena.controllers.marker.remove(`${interior.uid}-inside`);
 
             interior.outsideShape.destroy();
             interior.insideShape.destroy();
@@ -694,7 +692,7 @@ export class InteriorSystem {
         // Only creates it once for the single dimension since it does not exist yet.
         // Lowers need for additional interaction controllers.
         if (!interior.insideShape) {
-            const insideUid = InteractionController.add({
+            const insideUid = Athena.controllers.interaction.add({
                 description: LOCALE_INTERIOR_VIEW.LABEL_OPEN_INTERIOR_MENU,
                 position: new alt.Vector3(interior.inside.x, interior.inside.y, interior.inside.z - 1.5),
                 uid: `${interior.uid}-inside`,
@@ -706,9 +704,9 @@ export class InteriorSystem {
                 height: 5,
             });
 
-            interior.insideShape = InteractionController.get(insideUid);
+            interior.insideShape = Athena.controllers.interaction.get(insideUid);
 
-            ServerMarkerController.append({
+            Athena.controllers.marker.append({
                 uid: `${interior.uid}-inside`,
                 maxDistance: 15,
                 color: new alt.RGBA(255, 255, 0, 75),
@@ -865,7 +863,7 @@ export class InteriorSystem {
             return null;
         }
 
-        const accessKey = sha256Random(JSON.stringify(interior));
+        const accessKey = Athena.utility.hash.sha256Random(JSON.stringify(interior));
 
         if (!interior.keys) {
             interior.keys = [];
@@ -969,7 +967,7 @@ export class InteriorSystem {
             return;
         }
 
-        const data = deepCloneObject<InteriorInternal>(interior);
+        const data = Athena.utility.deepCloneObject<InteriorInternal>(interior);
         delete data.players;
         delete data.factions;
         delete data.storage;
@@ -1092,7 +1090,7 @@ export class InteriorSystem {
         await Database.updatePartialData(
             interior._id.toString(),
             { factions: interior.factions },
-            Collections.Interiors,
+            Athena.database.collections.Interiors,
         );
 
         return true;
@@ -1125,7 +1123,7 @@ export class InteriorSystem {
         await Database.updatePartialData(
             interior._id.toString(),
             { factions: interior.factions },
-            Collections.Interiors,
+            Athena.database.collections.Interiors,
         );
 
         return true;
@@ -1145,7 +1143,11 @@ export class InteriorSystem {
         }
 
         interior.owner = null;
-        await Database.updatePartialData(interior._id.toString(), { owner: interior.owner }, Collections.Interiors);
+        await Database.updatePartialData(
+            interior._id.toString(),
+            { owner: interior.owner },
+            Athena.database.collections.Interiors,
+        );
         InteriorSystem.refresh(interior.uid);
 
         return true;
@@ -1230,4 +1232,4 @@ alt.onClient(INTERIOR_INTERACTIONS.STORAGE, InternalSystem.storage);
 alt.onClient(INTERIOR_INTERACTIONS.TOGGLE_LOCK, InternalSystem.toggleLock);
 alt.onClient(INTERIOR_INTERACTIONS.ENTER, InteriorSystem.movePlayerIn);
 alt.onClient(INTERIOR_INTERACTIONS.EXIT, InteriorSystem.movePlayerOut);
-PlayerEvents.on(ATHENA_EVENTS_PLAYER.SELECTED_CHARACTER, InternalSystem.spawn);
+Athena.events.player.on(ATHENA_EVENTS_PLAYER.SELECTED_CHARACTER, InternalSystem.spawn);

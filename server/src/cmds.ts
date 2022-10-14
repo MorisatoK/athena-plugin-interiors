@@ -1,15 +1,12 @@
 import * as alt from 'alt-server';
-import ChatController from '../../../../server/systems/chat';
 import { INTERIOR_SYSTEM } from '../../shared/flags';
 import { Interior } from '../../shared/interfaces';
 import { PERMISSIONS } from '../../../../shared/flags/permissionFlags';
 import { InputMenu, InputOptionType, InputResult } from '../../../../shared/interfaces/inputMenus';
-import { Vector3 } from '../../../../shared/interfaces/vector';
-import { isFlagEnabled } from '../../../../shared/utility/flags';
 import { InteriorSystem } from './system';
 import { Athena } from '../../../../server/api/athena';
 
-ChatController.addCommand('addhouse', '/addhouse', PERMISSIONS.ADMIN, addhouse);
+Athena.controllers.chat.addCommand('addhouse', '/addhouse', PERMISSIONS.ADMIN, addhouse);
 
 async function addhouse(player: alt.Player) {
     const menu: InputMenu = {
@@ -58,7 +55,7 @@ alt.onClient('cmd:Create:House', async (player: alt.Player, results: InputResult
         return;
     }
 
-    if (!isFlagEnabled(player.accountData.permissionLevel, PERMISSIONS.ADMIN)) {
+    if (!Athena.utility.isFlagEnabled(player.accountData.permissionLevel, PERMISSIONS.ADMIN)) {
         return;
     }
 
@@ -74,7 +71,7 @@ alt.onClient('cmd:Create:House', async (player: alt.Player, results: InputResult
         return;
     }
 
-    let actualPos: Vector3;
+    let actualPos: alt.IVector3;
 
     try {
         actualPos = JSON.parse(interior.value);

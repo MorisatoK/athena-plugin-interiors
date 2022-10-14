@@ -1,14 +1,14 @@
 import * as alt from 'alt-client';
-import { PushVehicle } from '../../../../client/systems/push';
-import { isAnyMenuOpen } from '../../../../client/utility/menus';
-import { PLAYER_SYNCED_META } from '../../../../shared/enums/playerSynced';
-import { InputOptionType, InputResult } from '../../../../shared/interfaces/inputMenus';
-import { InputView } from '../../../../client/views/input';
+import { PushVehicle } from '@AthenaClient/systems/push';
+import { isAnyMenuOpen } from '@AthenaClient/utility/menus';
+import { PLAYER_SYNCED_META } from '@AthenaShared/enums/playerSynced';
+import { InputOptionType, InputResult } from '@AthenaShared/interfaces/inputMenus';
+import { InputView } from '@AthenaClient/views/input';
 import { Interior } from '../../shared/interfaces';
 import { INTERIOR_INTERACTIONS } from '../../shared/enums';
 import { LOCALE_INTERIOR_VIEW } from '../../shared/locales';
-import { IWheelOptionExt } from '../../../../shared/interfaces/wheelMenu';
-import { WheelMenu } from '../../../../client/views/wheelMenu';
+import { IWheelOptionExt } from '@AthenaShared/interfaces/wheelMenu';
+import { WheelMenu } from '@AthenaClient/views/wheelMenu';
 
 function initialCheck(): boolean {
     if (alt.Player.local.vehicle) {
