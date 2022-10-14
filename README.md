@@ -16,12 +16,12 @@ cd src/core/plugins
 **SSH**
 
 ```
-git clone git@github.com:Athena-Roleplay-Framework/athena-plugin-interior.git
+git clone git@github.com:Athena-Roleplay-Framework/athena-plugin-interiors.git
 ```
 
 **HTTPS**
 ```
-git clone https://github.com/Athena-Roleplay-Framework/athena-plugin-interior
+git clone https://github.com/Athena-Roleplay-Framework/athena-plugin-interiors
 ```
 
 4. Start the Server
