@@ -68,10 +68,10 @@ class InternalSystem {
             Athena.controllers.marker.append({
                 uid: `${interior.uid}-outside`,
                 maxDistance: 15,
-                color: new alt.RGBA(255, 255, 0, 75),
-                pos: interior.outside,
-                scale: { x: 0.25, y: 0.25, z: 0.25 },
-                type: 0,
+                color: new alt.RGBA(50, 200, 200, 75),
+                pos: { x: interior.outside.x, y: interior.outside.y, z: interior.outside.z - 1 },
+                scale: { x: 0.5, y: 0.5, z: 0.25 },
+                type: 1,
             });
 
             const outsideUid = Athena.controllers.interaction.add({
@@ -210,7 +210,7 @@ class InternalSystem {
         const aboveGroundOutside = {
             x: interior.outside.x,
             y: interior.outside.y,
-            z: interior.outside.z + 0.75,
+            z: interior.outside.z + 0.25,
         };
 
         Athena.controllers.text.remove(`${interior.uid}-outside`);
@@ -694,7 +694,7 @@ export class InteriorSystem {
         if (!interior.insideShape) {
             const insideUid = Athena.controllers.interaction.add({
                 description: LOCALE_INTERIOR_VIEW.LABEL_OPEN_INTERIOR_MENU,
-                position: new alt.Vector3(interior.inside.x, interior.inside.y, interior.inside.z - 1.5),
+                position: { x: interior.inside.x, y: interior.inside.y, z: interior.inside.z - 0.5 },
                 uid: `${interior.uid}-inside`,
                 data: [interior.uid, false],
                 range: INTERACTION_DISTANCE,
@@ -709,10 +709,10 @@ export class InteriorSystem {
             Athena.controllers.marker.append({
                 uid: `${interior.uid}-inside`,
                 maxDistance: 15,
-                color: new alt.RGBA(255, 255, 0, 75),
-                pos: interior.inside,
-                type: 0,
-                scale: { x: 0.25, y: 0.25, z: 0.5 },
+                color: new alt.RGBA(50, 200, 200, 75),
+                pos: { x: interior.inside.x, y: interior.inside.y, z: interior.inside.z - 1 },
+                type: 1,
+                scale: { x: 0.5, y: 0.5, z: 0.25 },
                 dimension: interior.dimension,
             });
         }
@@ -741,7 +741,7 @@ export class InteriorSystem {
         // logged out inside of an interior.
         if (!noTeleport) {
             Athena.player.set.frozen(player, true);
-            Athena.player.safe.setPosition(player, interior.inside.x, interior.inside.y, interior.inside.z + 1);
+            Athena.player.safe.setPosition(player, interior.inside.x, interior.inside.y, interior.inside.z + 0.05);
 
             // Freeze Player for Interior Loading
             alt.setTimeout(() => {
@@ -800,7 +800,7 @@ export class InteriorSystem {
 
         Athena.player.set.frozen(player, true);
         Athena.player.safe.setDimension(player, 0);
-        Athena.player.safe.setPosition(player, interior.outside.x, interior.outside.y, interior.outside.z + 1);
+        Athena.player.safe.setPosition(player, interior.outside.x, interior.outside.y, interior.outside.z + 0.05);
         Athena.state.set(player, 'interior', null);
         alt.setTimeout(() => {
             if (!player || !player.valid) {

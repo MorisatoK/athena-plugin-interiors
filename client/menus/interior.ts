@@ -112,7 +112,7 @@ function enterMenu(interior: Interior) {
                             id: 'name',
                             desc: LOCALE_INTERIOR_VIEW.LABEL_SET_HOUSE_NAME_PLACEHOLDER,
                             type: InputOptionType.TEXT,
-                            placeholder: `Stuyks House`,
+                            placeholder: `Someones House`,
                             regex: '^[a-zA-Z0-9 ]{1,24}$', // Matches 3 to 24 Characters
                             error: '3-24 Characters. No Special Characters.',
                         },
