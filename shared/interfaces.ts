@@ -1,6 +1,6 @@
-import { IObject } from '../../../shared/interfaces/iObject';
-import { Vector3 } from '../../../shared/interfaces/vector';
-import { IEntitySet } from '../../../shared/interfaces/iEntitySet';
+import * as alt from 'alt-shared';
+import { IObject } from '@AthenaShared/interfaces/iObject';
+import { IEntitySet } from '@AthenaShared/interfaces/iEntitySet';
 import { INTERIOR_SYSTEM } from './flags';
 
 export interface Interior {
@@ -22,17 +22,17 @@ export interface Interior {
 
     /**
      * The location for the outside entrance to the inside.
-     * @type {Vector3}
+     * @type {alt.IVector3}
      * @memberof Interior
      */
-    outside: Vector3;
+    outside: alt.IVector3;
 
     /**
      * The location inside of an interior that leads to the outside.
-     * @type {Vector3}
+     * @type {alt.IVector3}
      * @memberof Interior
      */
-    inside: Vector3;
+    inside: alt.IVector3;
 
     /**
      * The name to display outside of the interior.
@@ -95,14 +95,14 @@ export interface Interior {
      * @type {number}
      * @memberof Interior
      */
-     interiorID?: number;
+    interiorID?: number;
 
-     /**
+    /**
      * List of EntitySets and if to activate them or not.
      * @type {Array<IEntitySet>}
      * @memberof Interior
      */
-      entitySets?: Array<IEntitySet>;
+    entitySets?: Array<IEntitySet>;
 
     /**
      * The price of this interior if it is for sale.

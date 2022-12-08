@@ -1,4 +1,4 @@
-import * as charRef from '../../../../shared/interfaces/character';
+import * as charRef from '@AthenaShared/interfaces/character';
 
 // Extends the player interface.
 declare module 'alt-server' {

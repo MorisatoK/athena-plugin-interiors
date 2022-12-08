@@ -1,10 +1,10 @@
 import * as alt from 'alt-server';
 import { INTERIOR_SYSTEM } from '../../shared/flags';
 import { Interior } from '../../shared/interfaces';
-import { PERMISSIONS } from '../../../../shared/flags/permissionFlags';
-import { InputMenu, InputOptionType, InputResult } from '../../../../shared/interfaces/inputMenus';
+import { PERMISSIONS } from '@AthenaShared/flags/permissionFlags';
+import { InputMenu, InputOptionType, InputResult } from '@AthenaShared/interfaces/inputMenus';
 import { InteriorSystem } from './system';
-import { Athena } from '../../../../server/api/athena';
+import { Athena } from '@AthenaServer/api/athena';
 
 Athena.controllers.chat.addCommand('addhouse', '/addhouse', PERMISSIONS.ADMIN, addhouse);
 
