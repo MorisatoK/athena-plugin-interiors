@@ -8,5 +8,5 @@ const PLUGIN_NAME = 'Athena Interiors';
 PluginSystem.registerPlugin(PLUGIN_NAME, async () => {
     await InteriorSystem.init();
     await createDefaultInteriors();
-    alt.log(`~lg~CORE ==> ${PLUGIN_NAME} was Loaded`);
+    alt.log(`~lg~${PLUGIN_NAME} was Loaded`);
 });
