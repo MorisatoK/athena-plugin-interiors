@@ -28,10 +28,11 @@ import { Athena } from '@AthenaServer/api/athena';
  * Everything should work around the uid for adding, looking up, etc.
  */
 const ONE_BILLION = 1000000000;
-const DOOR_CHECK_DIST = 3;
+const DOOR_CHECK_DIST = 2;
 const LOST_PLAYER_POS = { x: -867.1437377929688, y: -172.6201934814453, z: 37.799232482910156 };
 const NEW_LINE = `~n~`;
-const INTERACTION_DISTANCE = 2;
+const INTERACTION_DISTANCE = 1;
+const MAX_VISIBLE_DISTANCE = 5;
 const interiors: Map<string, InteriorInternal> = new Map();
 
 let nextDimension = 2;
@@ -67,7 +68,7 @@ class InternalSystem {
         if (!interior.removeOutsideColshape) {
             Athena.controllers.marker.append({
                 uid: `${interior.uid}-outside`,
-                maxDistance: 15,
+                maxDistance: MAX_VISIBLE_DISTANCE,
                 color: new alt.RGBA(50, 200, 200, 75),
                 pos: { x: interior.outside.x, y: interior.outside.y, z: interior.outside.z - 1 },
                 scale: { x: 0.5, y: 0.5, z: 0.25 },
@@ -222,7 +223,7 @@ class InternalSystem {
             uid: `${interior.uid}-outside`,
             pos: aboveGroundOutside,
             data: outsideName,
-            maxDistance: 10,
+            maxDistance: MAX_VISIBLE_DISTANCE,
         });
     }
 
@@ -708,7 +709,7 @@ export class InteriorSystem {
 
             Athena.controllers.marker.append({
                 uid: `${interior.uid}-inside`,
-                maxDistance: 15,
+                maxDistance: MAX_VISIBLE_DISTANCE,
                 color: new alt.RGBA(50, 200, 200, 75),
                 pos: { x: interior.inside.x, y: interior.inside.y, z: interior.inside.z - 1 },
                 type: 1,
