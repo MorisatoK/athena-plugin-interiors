@@ -502,6 +502,7 @@ class InternalSystem {
                 Athena.player.currency.add(target, CurrencyTypes.BANK, originalPrice);
                 Athena.player.emit.sound2D(target, 'item_purchase');
                 Athena.player.emit.notification(player, LOCALE_INTERIOR_VIEW.LABEL_DID_SELL_INTERIOR);
+                InternalSystem.removeInteriorBlip(target, interior.uid);
             } else {
                 const targetData = await Database.fetchData<Character>(
                     `_id`,
@@ -532,6 +533,7 @@ class InternalSystem {
         Athena.player.emit.notification(player, LOCALE_INTERIOR_VIEW.LABEL_DID_PURCHASE_INTERIOR);
         Athena.player.emit.sound2D(player, 'item_purchase');
 
+        InternalSystem.addInteriorBlip(player, interior);
         InteriorSystem.refresh(interior.uid);
     }
 
@@ -551,6 +553,67 @@ class InternalSystem {
         if (player.data.interior) {
             InteriorSystem.movePlayerIn(player, player.data.interior, true, true);
         }
+    }
+
+    /**
+     * Draw blips for interiors a player owns.
+     * @static
+     * @param {alt.Player} player
+     * @return {*}
+     * @memberof InternalSystem
+     */
+    static async addAllInteriorBlips(player: alt.Player) {
+        if (!player || !player.data || !player.valid) {
+            return;
+        }
+
+        await InternalSystem.hasInitialized();
+
+        interiors.forEach((interior) => {
+            if (InteriorSystem.isOwner(player, interior)) {
+                InternalSystem.addInteriorBlip(player, interior);
+            }
+        });
+    }
+
+    /**
+     * Adds a blip for an interior.
+     * @static
+     * @param {alt.Player} player
+     * @param {InteriorInternal} interior
+     * @return {*}
+     * @memberof InternalSystem
+     */
+    static async addInteriorBlip(player: alt.Player, interior: InteriorInternal) {
+        if (!player || !player.data || !player.valid) {
+            return;
+        }
+
+        Athena.controllers.blip.addToPlayer(player, {
+            uid: `blip-${interior.uid}`,
+            color: 15, // Cyan'ish
+            text: interior.name,
+            pos: interior.outside,
+            shortRange: true,
+            scale: 1,
+            sprite: 40, // House
+        });
+    }
+
+    /**
+     * Removes a blip for an interior.
+     * @static
+     * @param {alt.Player} player
+     * @param {string} uid
+     * @return {*}
+     * @memberof InternalSystem
+     */
+    static async removeInteriorBlip(player: alt.Player, uid: string) {
+        if (!player || !player.data || !player.valid) {
+            return;
+        }
+
+        Athena.controllers.blip.removeFromPlayer(player, `blip-${uid}`);
     }
 }
 
@@ -1233,3 +1296,4 @@ alt.onClient(INTERIOR_INTERACTIONS.TOGGLE_LOCK, InternalSystem.toggleLock);
 alt.onClient(INTERIOR_INTERACTIONS.ENTER, InteriorSystem.movePlayerIn);
 alt.onClient(INTERIOR_INTERACTIONS.EXIT, InteriorSystem.movePlayerOut);
 Athena.events.player.on(ATHENA_EVENTS_PLAYER.SELECTED_CHARACTER, InternalSystem.spawn);
+Athena.events.player.on(ATHENA_EVENTS_PLAYER.SELECTED_CHARACTER, InternalSystem.addAllInteriorBlips);
