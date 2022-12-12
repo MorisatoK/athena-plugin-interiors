@@ -1039,7 +1039,7 @@ export class InteriorSystem {
         delete data.outsideShape;
         delete data.ipl;
 
-        alt.emitClient(player, INTERIOR_INTERACTIONS.SHOW_MENU, interior, isOutside);
+        alt.emitClient(player, INTERIOR_INTERACTIONS.SHOW_MENU, data, isOutside);
     }
 
     /**
